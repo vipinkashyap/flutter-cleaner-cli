@@ -1,6 +1,6 @@
 package main
 
-import "flutter-cleaner-cli/cmd"
+import "github.com/vipinkashyap/flutter-cleaner-cli/cmd"
 
 func main() {
     cmd.Execute()

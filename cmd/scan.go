@@ -30,10 +30,10 @@ var scanCmd = &cobra.Command{
 
 		// Ask for confirmation if scanning home or root
 		if dir == "/" || dir == os.Getenv("HOME") {
-			fmt.Println(ui.WarningColor.Render("⚠️  Scanning this directory may take a long time."))
+			fmt.Println(ui.WarningStyle.Render("⚠️  Scanning this directory may take a long time."))
 			ok, _ := ui.AskConfirm("Continue anyway?")
 			if !ok {
-				fmt.Println(ui.ErrorColor.Render("❌ Scan cancelled."))
+				fmt.Println(ui.ErrorStyle.Render("❌ Scan cancelled."))
 				return
 			}
 		}
@@ -41,7 +41,7 @@ var scanCmd = &cobra.Command{
 		start := time.Now()
 		fmt.Println(ui.SectionStyle.Render("🔍 Scanning..."))
 		if fast {
-			fmt.Println(ui.WarningColor.Render("⚡ Fast mode: skipping common system and cache folders"))
+			fmt.Println(ui.WarningStyle.Render("⚡ Fast mode: skipping common system and cache folders"))
 		}
 
 		var totalSize int64
@@ -84,7 +84,7 @@ var scanCmd = &cobra.Command{
 
 		duration := time.Since(start).Round(time.Second)
 		fmt.Println()
-		fmt.Println(ui.SuccessColor.Render(fmt.Sprintf("✅ Found %d Flutter project(s)", projects)))
+		fmt.Println(ui.SuccessStyle.Render(fmt.Sprintf("✅ Found %d Flutter project(s)", projects)))
 		fmt.Println(ui.SectionStyle.Render(fmt.Sprintf("📦 Total size: %s", formatSize(totalSize))))
 		fmt.Println(ui.MutedText.Render(fmt.Sprintf("⏱️  Scan completed in %v", duration)))
 	},

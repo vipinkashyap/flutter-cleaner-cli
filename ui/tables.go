@@ -3,35 +3,39 @@ package ui
 import (
 	"bytes"
 
-	"github.com/olekukonko/tablewriter"
+	"github.com/jedib0t/go-pretty/v6/table"
+	"github.com/jedib0t/go-pretty/v6/text"
 )
 
 func RenderTableWithBorder(title string, headers []string, rows [][]string) string {
-	buf := new(bytes.Buffer)
+    buf := new(bytes.Buffer)
 
-	table := tablewriter.NewWriter(buf)
-	table.SetHeader(headers)
-	table.SetBorder(false)
-	table.SetRowSeparator("─")
-	table.SetAlignment(tablewriter.ALIGN_LEFT)
+    t := table.NewWriter()
+    t.SetOutputMirror(buf)
 
-	// Colors
-	headerColors := []tablewriter.Colors{{tablewriter.FgHiCyanColor}}
-	for range headers {
-		headerColors = append(headerColors, tablewriter.Colors{tablewriter.FgHiCyanColor})
-	}
-	table.SetHeaderColor(headerColors...)
+    headerRow := table.Row{}
+    for _, h := range headers {
+        headerRow = append(headerRow, text.FgCyan.Sprint(h))
+    }
+    t.AppendHeader(headerRow)
 
-	rowColors := []tablewriter.Colors{{tablewriter.FgWhiteColor}}
-	table.SetColumnColor(rowColors...)
+    for _, r := range rows {
+        row := table.Row{}
+        for _, col := range r {
+            row = append(row, col)
+        }
+        t.AppendRow(row)
+    }
 
-	table.AppendBulk(rows)
-	table.Render()
+    t.SetStyle(table.StyleRounded)
+    t.Style().Color.Header = text.Colors{text.FgCyan}
+    t.Style().Color.Row = text.Colors{text.FgWhite}
 
-	content := BorderBox.Render(buf.String())
+    t.Render()
 
-	if title != "" {
-		return TitleStyle.Render(title) + "\n" + content
-	}
-	return content
+    box := BorderBox.Render(buf.String())
+    if title != "" {
+        return TitleStyle.Render(title) + "\n" + box
+    }
+    return box
 }

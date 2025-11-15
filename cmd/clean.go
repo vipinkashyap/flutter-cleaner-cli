@@ -1,3 +1,20 @@
+package cmd
+
+import (
+	"encoding/json"
+	"fmt"
+	"os"
+	"os/exec"
+	"path/filepath"
+	"strconv"
+	"strings"
+	"sync"
+	"time"
+
+	"github.com/spf13/cobra"
+	"github.com/vipinkashyap/flutter-cleaner-cli/ui"
+)
+
 // CleanResult holds info about a cleaned project and how much space was freed.
 type CleanResult struct {
     Path  string
@@ -5,24 +22,9 @@ type CleanResult struct {
 }
 
 var cleanResults []CleanResult
-
 var dryRun bool
-package cmd
 
-import (
-	"encoding/json"
-	"os"
-	"os/exec"
-	"path/filepath"
-	"sync"
 
-	"fmt"
-	"github.com/vipinkashyap/flutter-cleaner-cli/ui"
-	"github.com/spf13/cobra"
-	"time"
-	"strconv"
-	"strings"
-)
 
 var all bool
 var parallel int
@@ -37,18 +39,18 @@ var cleanCmd = &cobra.Command{
             suggestFile := filepath.Join(os.TempDir(), "fclean_suggestions.json")
             data, err := os.ReadFile(suggestFile)
             if err != nil {
-                fmt.Println(ui.ErrorColor.Render(fmt.Sprintf("❌ Could not read suggestions file: %v", err)))
+                fmt.Println(ui.ErrorStyle.Render(fmt.Sprintf("❌ Could not read suggestions file: %v", err)))
                 return
             }
 
             var suggestions []Suggestion
             if err := json.Unmarshal(data, &suggestions); err != nil {
-                fmt.Println(ui.ErrorColor.Render("❌ Invalid suggestions file format."))
+                fmt.Println(ui.ErrorStyle.Render("❌ Invalid suggestions file format."))
                 return
             }
 
             if suggestIndex < 1 || suggestIndex > len(suggestions) {
-                fmt.Println(ui.ErrorColor.Render(fmt.Sprintf("⚠️ Invalid suggestion number. Choose between 1 and %d", len(suggestions))))
+                fmt.Println(ui.ErrorStyle.Render(fmt.Sprintf("⚠️ Invalid suggestion number. Choose between 1 and %d", len(suggestions))))
                 return
             }
 
@@ -74,7 +76,7 @@ var cleanCmd = &cobra.Command{
         }
 
         if len(args) == 0 {
-            fmt.Println(ui.ErrorColor.Render("Provide a project path, use --all, or try --suggest <num>"))
+            fmt.Println(ui.ErrorStyle.Render("Provide a project path, use --all, or try --suggest <num>"))
             return
         }
 
@@ -89,11 +91,12 @@ func runFlutterClean(dir string) {
     fmt.Println(ui.SectionStyle.Render(fmt.Sprintf("➡️  Cleaning: %s", dir)))
 
     if dryRun {
-        after := before
-        freed := int64(0)
-        fmt.Println(ui.WarningColor.Render(fmt.Sprintf("🔎 Dry run: would clean %s (Freeable %s)", dir, formatSize(before))))
-        cleanResults = append(cleanResults, CleanResult{Path: dir, Freed: formatSize(freed)})
-        return
+    freed := int64(0)
+    fmt.Println(ui.WarningStyle.Render(
+        fmt.Sprintf("🔎 Dry run: would clean %s (Freeable %s)", dir, formatSize(before)),
+    ))
+    cleanResults = append(cleanResults, CleanResult{Path: dir, Freed: formatSize(freed)})
+    return
     }
 
     for i := 0; i < 100; i++ {
@@ -112,9 +115,9 @@ func runFlutterClean(dir string) {
     after := folderSize(dir)
     freed := before - after
     if err != nil {
-        fmt.Println(ui.ErrorColor.Render(fmt.Sprintf("❌ %s (Error: %v)", dir, err)))
+        fmt.Println(ui.ErrorStyle.Render(fmt.Sprintf("❌ %s (Error: %v)", dir, err)))
     } else {
-        fmt.Println(ui.SuccessColor.Render(fmt.Sprintf("✅ %s (Freed %s in %v)", dir, formatSize(freed), duration)))
+        fmt.Println(ui.SuccessStyle.Render(fmt.Sprintf("✅ %s (Freed %s in %v)", dir, formatSize(freed), duration)))
         cleanResults = append(cleanResults, CleanResult{Path: dir, Freed: formatSize(freed)})
     }
 }
@@ -150,7 +153,7 @@ func cleanAllProjects(projects []string) {
     rows = append(rows, []string{"TOTAL", formatSize(totalFreed)})
     summary := ui.RenderTableWithBorder("🧹 Cleaning Summary", []string{"Project", "Freed"}, rows)
     fmt.Println(summary)
-    fmt.Println(ui.SuccessColor.Render("💾 All done."))
+    fmt.Println(ui.SuccessStyle.Render("💾 All done."))
     cleanResults = []CleanResult{}
 }
 

@@ -58,7 +58,7 @@ var suggestCmd = &cobra.Command{
 		})
 
 		if len(suggestions) == 0 {
-			fmt.Println(ui.SuccessColor.Render("✨ No build folders found — everything looks clean!"))
+			fmt.Println(ui.SuccessStyle.Render("✨ No build folders found — everything looks clean!"))
 			return
 		}
 
